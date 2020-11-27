@@ -1,15 +1,14 @@
-require('dotenv').config();
+const express       = require('express')
+const config        = require('./config/app')
+const router        = require('./routes')
+const bodyParser    = require('body-parser')
+const app           = express()
 
-const 
-        config  = require('./config/app')
-        express = require('express'),
-        app     = express()
-        port    = config.appPort
+app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json())
+app.use(router);
 
-
-app.get('/',(req,res) => {
-    res.send('Hello World')
-})
+const port = config.appPort
 
 app.listen(port, () => {
     console.log(`Server running on ${port} port`);
