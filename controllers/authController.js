@@ -2,35 +2,40 @@ const User = require('../models').User
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const config = require('../config/app')
+// const { validationResult } = require("express-validator")
 
 exports.login = async (req, res) => {
-    const {email, password} = req.body
+    const { email, password } = req.body
 
-    try{
+    try {
         // const crypto = require('crypto').randomBytes(64).toString('hex');
         const user = await User.findOne({
-            where : {
+            where: {
                 email
             }
         })
 
-        if(!user) 
-            return res.status(404).json({message: "User Not Found"})
-        
-        if(!bcrypt.compareSync(password, user.password)) 
-            return res.status(404).json({message: "Incorrect Password"})
+        if (!user)
+            return res.status(404).json({ message: "User Not Found" })
 
-        const userToken = generateToken(user)
+        if (!bcrypt.compareSync(password, user.password))
+            return res.status(404).json({ message: "Incorrect Password" })
+
+        const userToken = generateToken(user.get())
         return res.send(userToken)
     }
-    catch(e){
-        res.status(500).json({message: e.message})
+    catch (e) {
+        res.status(500).json({ message: e.message })
     }
 }
 
 exports.register = async (req, res) => {
-    console.log(req.body.firstName)
-    try{
+    try {
+        // const err = validationResult(req)
+        // console.log(err.array())
+        // if (!err.isEmpty()) { // error is not empty ? 
+        //     return res.status(400).json({ error: err.array() })
+        // }
         // const user = await User.create({
         //     firstName : req.body.firstName,
         //     lastName : req.body.lastName,
@@ -42,31 +47,32 @@ exports.register = async (req, res) => {
         // OR
 
         // jika menggunakan ini inisialisasi hash password pada model user | cek di models/user.js
-        const user = await User.create(req.body) 
+
+        const user = await User.create(req.body)
         const userToken = generateToken(user.get())
         return res.send(userToken)
     }
-    catch(e){
-        res.status(500).json({message: e.message})
+    catch (e) {
+        return res.status(400).json({ message: e.message })
     }
 }
 
 const generateToken = (user) => {
     delete user.password
-    const token = jwt.sign(user, config.appKey , {expiresIn: 86400})
-    return {user, token}
+    const token = jwt.sign(user, config.appKey, { expiresIn: 86400 })
+    return { user, token }
 }
 
 exports.deleteUser = async (req, res) => {
-    try{
+    try {
         const user = await User.destroy({
-            where:{
+            where: {
                 id: req.body.id
             }
         })
-        res.status(200).json({message: "successfully deleted"});
+        return res.status(200).json({ message: "successfully deleted" });
     }
-    catch(e){
-        res.status(500).json({message: e.message})
+    catch (e) {
+        return res.status(500).json({ message: e.message })
     }
 }

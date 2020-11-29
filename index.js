@@ -11,5 +11,5 @@ app.use(router);
 const port = config.appPort
 
 app.listen(port, () => {
-    console.log(`Server running on ${port} port`);
+    console.log(`server running on port: ${port} `);
 })
