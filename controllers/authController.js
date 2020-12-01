@@ -8,7 +8,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body
 
     try {
-        // const crypto = require('crypto').randomBytes(64).toString('hex');
+        // const crypto = require('crypto').randomBytes(32).toString('hex');
         const user = await User.findOne({
             where: {
                 email
@@ -21,8 +21,9 @@ exports.login = async (req, res) => {
         if (!bcrypt.compareSync(password, user.password))
             return res.status(404).json({ message: "Incorrect Password" })
 
-        const userToken = generateToken(user.get())
-        return res.send(userToken)
+        const userWithToken = generateToken(user.get())
+        // return res.send(userWithToken)
+        return res.send(userWithToken)
     }
     catch (e) {
         res.status(500).json({ message: e.message })
@@ -49,8 +50,8 @@ exports.register = async (req, res) => {
         // jika menggunakan ini inisialisasi hash password pada model user | cek di models/user.js
 
         const user = await User.create(req.body)
-        const userToken = generateToken(user.get())
-        return res.send(userToken)
+        const userWithToken = generateToken(user.get())
+        return res.send(userWithToken)
     }
     catch (e) {
         return res.status(400).json({ message: e.message })
